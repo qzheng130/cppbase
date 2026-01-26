@@ -1,0 +1,87 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"install"
+		],
+		"files" : 
+		[
+			"base/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 6,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 7,
+				"parent" : 0
+			}
+		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 9
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"lib/libbase.a"
+			],
+			"targetId" : "base::@4506b02e7a4fef989908",
+			"targetIndex" : 0,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"cxxModuleBmiTarget" : 
+			{
+				"id" : "base::@4506b02e7a4fef989908",
+				"index" : 0
+			},
+			"destination" : "lib",
+			"type" : "cxxModuleBmi"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "include/base",
+			"paths" : 
+			[
+				"base/BlockingCircularBuffer.h",
+				"base/BlockingQueue.h",
+				"base/BlockingQueuePtr.h",
+				"base/BoundedBlockingCircularBuffer.h",
+				"base/CountDownLatch.h",
+				"base/Noncopyable.h",
+				"base/Singleton.h",
+				"base/cppbase.h",
+				"base/thread_pool.h",
+				"base/thread_pool_vv.h",
+				"base/threadsafe_queue.h"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : "base",
+		"source" : "base"
+	}
+}

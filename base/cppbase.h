@@ -6,10 +6,7 @@
 #include <deque>
 #include <map>
 #include <memory>
-#include <qdebug.h>
-#include <qfile.h>
-#include <qsettings.h>
-#include <qstring.h>
+#include <functional>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -39,3 +36,6 @@ using std::unordered_set;
 using std::vector;
 using std::mutex;
 using std::condition_variable;
+using std::cout;
+using std::cerr;
+using std::endl;
