@@ -1,9 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"I:/upstream/cppbase/build/Debug/cmake_install.cmake",
-		"I:/upstream/cppbase/build/Debug/base/cmake_install.cmake",
-		"I:/upstream/cppbase/build/Debug/base/test/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
