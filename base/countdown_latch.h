@@ -1,16 +1,14 @@
 #pragma once
 #include <mutex>
 #include <condition_variable>
-#include "Noncopyable.h"
+#include "noncopyable.h"
 #include <cassert>
 
-namespace cppbase
-{
-class CountDownLatch : Noncopyable
+class countdown_latch : noncopyable
 {
 public:
-    explicit CountDownLatch(int count)
-    : count_(count) { };
+    explicit countdown_latch(int count)
+        : count_(count) {};
 
     void wait()
     {
@@ -40,4 +38,3 @@ private:
     std::condition_variable condition_;
     int count_;
 };
-} // namespace cppbase

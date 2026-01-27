@@ -1,5 +1,5 @@
-file(GLOB base_SRCS *.cc)
-file(GLOB base_HEADERS "*.h")
+file(GLOB base_SRCS "*.cc" "*.cpp" "*.cxx")
+file(GLOB base_HEADERS "*.h" "*.hpp")
 
 add_library(base ${base_SRCS} ${base_HEADERS})
 # target_link_libraries(base)
