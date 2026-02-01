@@ -18,9 +18,9 @@ public:
         : queue_(capacity)
     {}
 
-    threadsafe_nonoverflow_fixedqueue()
-        : queue_()
-    {}
+    // threadsafe_nonoverflow_fixedqueue()
+    //     : queue_()
+    // {}
 
     void push(const T &x)
     {

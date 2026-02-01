@@ -4,6 +4,8 @@
 #include <stdexcept>
 
 // replace boost::circular_buffer
+const int kQueueCapacity = 10;
+
 template<typename T>
 class circular_buffer
 {
@@ -16,9 +18,9 @@ public:
         : capacity_(capacity > 0 ? capacity : 1)
     {}
 
-    circular_buffer()
-        : circular_buffer(10)
-    {}
+    // circular_buffer()
+    //     : circular_buffer(kQueueCapacity)
+    // {}
 
     bool empty() const { return buffer_.empty(); }
 

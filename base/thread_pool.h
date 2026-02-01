@@ -3,100 +3,54 @@
 #include "threadsafe_queue.h"
 #include <atomic>
 #include <future>
-#include <memory>
+// #include <memory>
+#include <functional>
 #include <vector>
-
-class function_wrapper
-{
-private:
-    struct impl_base {
-        virtual void call()=0;
-        virtual ~impl_base() {}
-    };
-
-    // 使用独占指针引用到一个包含function对象类型impl
-    std::unique_ptr<impl_base> impl;
-
-    template<typename F>
-    struct impl_type: impl_base
-    {
-        F f_;
-        impl_type(F &&f)
-            : f_(std::move(f))
-        {}
-        void call() { f_(); }
-    };
-
-public:
-    // 使用function对象构造
-    template<typename F>
-    function_wrapper(F&& f):
-        impl(new impl_type<F>(std::move(f)))
-    {}
-
-    void operator()() { impl->call(); }
-
-    function_wrapper() = default;
-
-    // 任何callable对象都可以移动构造为function_wrapper
-    function_wrapper(function_wrapper&& other):
-        impl(std::move(other.impl))
-    {}
-
-    // 移动赋值
-    function_wrapper& operator=(function_wrapper&& other)
-    {
-        impl=std::move(other.impl);
-        return *this;
-    }
-
-    // 不能拷贝构造和拷贝赋值
-    function_wrapper(const function_wrapper&)=delete;
-    function_wrapper(function_wrapper&)=delete;
-    function_wrapper& operator=(const function_wrapper&)=delete;
-};
 
 class thread_pool
 {
 public:
-    thread_pool()
-        : done(false)
-        , joiner(threads)
+    thread_pool(unsigned thread_count = std::thread::hardware_concurrency())
+        : thread_count_(thread_count)
+        , done_(false)
+        , joiner_(threads_)
     {
-        unsigned const thread_count = std::thread::hardware_concurrency();
         try {
-            for (unsigned i = 0; i < thread_count; ++i) {
-                threads.push_back(std::thread(&thread_pool::worker_thread, this));
+            for (unsigned i = 0; i < thread_count_; ++i) {
+                threads_.push_back(std::thread(&thread_pool::worker_thread, this));
             }
         } catch (...) {
-            done = true;
+            done_ = true;
             throw;
         }
     }
 
-    ~thread_pool() { done = true; }
+    ~thread_pool() { stop(); }
 
-    template<typename FunctionType>
-    std::future<typename std::result_of<FunctionType()>::type>
-    submit(FunctionType f)
+    void stop() { done_ = true; }
+    void restart() { done_ = false; }
+
+    template<typename Func, typename... Args>
+    auto submit(Func &&func, Args &&...args) -> std::future<decltype(func(args...))>
     {
-        // 函数对象没有参数
-        // result_type函数对象调用返回值类型
-        using result_type = typename std::result_of<FunctionType()>::type;
+        using result_type = decltype(func(args...));
 
-        std::packaged_task<result_type()> task(std::move(f));
-        // 获取future
-        std::future<result_type> res(task.get_future());
-        work_queue.push(std::move(task));
+        auto task = std::make_shared<std::packaged_task<result_type()>>(
+            std::bind(std::forward<Func>(func), std::forward<Args>(args)...));
+
+        std::future<result_type> res(task->get_future());
+
+        work_queue_.push([task]() { (*task)(); });
+
         return res;
     }
 
 private:
     void worker_thread()
     {
-        while (!done) {
-            function_wrapper task;
-            if (work_queue.try_pop(task)) {
+        while (!done_) {
+            std::function<void(void)> task;
+            if (work_queue_.try_pop(task)) {
                 task();
             } else {
                 std::this_thread::yield();
@@ -104,9 +58,10 @@ private:
         }
     }
 
-    std::atomic<bool> done;
-    // 任务队列保存只能移动的function_wrapper
-    threadsafe_queue<function_wrapper> work_queue;
-    std::vector<std::thread> threads;
-    join_threads joiner;
+    unsigned thread_count_;
+    using threadsafe_queue_t = threadsafe_queue<std::function<void(void)>>;
+    std::atomic<bool> done_;
+    threadsafe_queue_t work_queue_;
+    std::vector<std::thread> threads_;
+    join_threads joiner_;
 };

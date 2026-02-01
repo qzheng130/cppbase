@@ -1,45 +1,80 @@
-#include <vector>
-#include <future>
+#include "thread_pool.h"
+#include "thread_pool_fixedsize.h"
+#include <iostream>
+#include <latch>
+#include <stdio.h>
 #include <thread>
-#include "base/thread_pool.h"
+#include <unistd.h>
 
-template <typename Iterator, typename T>
-T parallel_accumulate(Iterator first, Iterator last, T init)
+void print()
 {
-    unsigned long const length = std::distance(first, last);
+    printf("tid=%d\n", std::this_thread::get_id());
+}
 
-    if (!length)
-        return init;
+void printString(const std::string &str)
+{
+    std::cout << str << std::endl;
+    std::this_thread::sleep_for(std::chrono::microseconds(100));
+}
 
-    unsigned long const block_size = 25;
-    unsigned long const num_blocks = (length + block_size - 1) / block_size;
+void test(int numThreads)
+{
+    std::cout << "Test ThreadPool with max queue size = " << numThreads << std::endl;
+    thread_pool_fixedsize pool(100, (unsigned) numThreads);
+    // thread_pool pool2((unsigned) numThreads);
 
-    std::vector<std::future<T>> futures(num_blocks - 1);
-    thread_pool pool;
+    pool.submit(print);
+    pool.submit(print);
+    std::cout << "start loop" << std::endl;
 
-    Iterator block_start = first;
-    for (unsigned long i = 0; i < (num_blocks - 1); ++i)
-    {
-        Iterator block_end = block_start;
-        std::advance(block_end, block_size);
-        // futures[i] = pool.submit(accumulate_block<Iterator, T>());
-        block_start = block_end;
+    for (int i = 0; i < 20; ++i) {
+        char buf[32];
+        snprintf(buf, sizeof buf, "task %d", i);
+        pool.submit(std::bind(printString, std::string(buf)));
     }
-    // T last_result = accumulate_block()(block_start, last);
-    T result = init;
-    for (unsigned long i = 0; i < (num_blocks - 1); ++i)
-    {
-        result += futures[i].get();
-    }
-    // result += last_result;
-    return result;
+
+    std::cout << "caller thread block" << std::endl;
+
+    std::latch latch(1);
+    pool.submit(std::bind(&std::latch::count_down, &latch, 1));
+    latch.wait();
+
+    std::cout << "caller thread unblock" << std::endl;
+
+    std::cout << "caller thread exit" << std::endl;
+}
+
+void longTask(int num)
+{
+    std::cout << "longTask " << num << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+}
+
+void test2()
+{
+    std::cout << "Test ThreadPool by stoping early." << std::endl;
+    thread_pool_fixedsize pool(30);
+
+    std::thread thread1([&pool]() {
+        for (int i = 0; i < 20; ++i) {
+            pool.submit(std::bind(longTask, i));
+        }
+    });
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::cout << "early stop pool" << std::endl;
+    pool.stop();
+
+    // submit() after stop()
+    pool.submit(print);
+    std::cout << "test2 done" << std::endl;
 }
 
 int main()
 {
-    std::vector<int> vec = { 0, 1, 2, 3, 4, 5 };
+    // test(0);
+    test(1);
+    // test(5);
 
-    // int res = parallel_accumulate(vec.begin(), vec.end(), 0);
-
-    return 0;
+    test2();
 }

@@ -17,9 +17,9 @@ public:
         : queue_(capacity)
     {}
 
-    threadsafe_fixedqueue()
-        : queue_()
-    {}
+    // threadsafe_fixedqueue()
+    //     : queue_()
+    // {}
 
     void push(const T &x)
     {
@@ -78,19 +78,19 @@ public:
         return queue_.empty();
     }
 
-    size_t size() const
+    int size() const
     {
         std::lock_guard<std::mutex> lock(mutex_);
         return queue_.size();
     }
 
-    size_t capacity() const
+    int capacity() const
     {
         std::lock_guard<std::mutex> lock(mutex_);
         return queue_.capacity();
     }
 
-    void set_capacity(size_t new_capacity)
+    void set_capacity(int new_capacity)
     {
         std::lock_guard<std::mutex> lock(mutex_);
         queue_.set_capacity(new_capacity);

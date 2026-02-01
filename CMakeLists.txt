@@ -15,7 +15,7 @@ set(CXX_FLAGS
 #  -Werror
  -Wconversion
  -Wno-unused-parameter
- -Wold-style-cast
+ # -Wold-style-cast
  -Woverloaded-virtual
  -Wpointer-arith
  -Wshadow
@@ -47,4 +47,15 @@ set(CMAKE_VERBOSE_MAKEFILE off)
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/base)
 
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/spdlog/CMakeLists.txt)
+    message(FATAL_ERROR "spdlog submodule not found. Run: git submodule update --init")
+endif()
+
+if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/googletest/CMakeLists.txt)
+    message(FATAL_ERROR "googletest submodule not found. Run: git submodule update --init")
+endif()
+
+
+add_subdirectory(deps/spdlog)
+add_subdirectory(deps/googletest)
 add_subdirectory(base)
