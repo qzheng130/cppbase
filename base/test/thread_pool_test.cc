@@ -1,10 +1,10 @@
 #include "thread_pool.h"
 #include "thread_pool_fixedsize.h"
+#include <cstdint>
 #include <iostream>
 #include <latch>
 #include <stdio.h>
 #include <thread>
-#include <unistd.h>
 
 void print()
 {

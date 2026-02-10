@@ -10,21 +10,24 @@ set(CXX_FLAGS
  -DVALGRIND
  -DCHECK_PTHREAD_RETURN_VALUE
  -D_FILE_OFFSET_BITS=64
- -Wall
- -Wextra
-#  -Werror
- -Wconversion
- -Wno-unused-parameter
+ # -Wall
+ # -Wextra
+ # -Werror
+ # -Wconversion
+ # -Wno-unused-parameter
  # -Wold-style-cast
- -Woverloaded-virtual
- -Wpointer-arith
- -Wshadow
- -Wwrite-strings
- -march=native
+ # -Woverloaded-virtual
+ # -Wpointer-arith
+ # -Wshadow
+ # -Wwrite-strings
+ # -march=native
  # -MMD
  -std=c++2a
  # -rdynamic
  )
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   list(APPEND CXX_FLAGS "-Wno-null-dereference")
@@ -55,7 +58,11 @@ if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/deps/googletest/CMakeLists.txt)
     message(FATAL_ERROR "googletest submodule not found. Run: git submodule update --init")
 endif()
 
+set(BOOST_ROOT "C:/local/boost_1_90_0")
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
 
 add_subdirectory(deps/spdlog)
 add_subdirectory(deps/googletest)
 add_subdirectory(base)
+add_subdirectory(test)
