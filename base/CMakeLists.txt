@@ -1,9 +1,14 @@
-file(GLOB base_SRCS "*.cc" "*.cpp" "*.cxx")
-file(GLOB base_HEADERS "*.h" "*.hpp")
+file(GLOB base_srcs "*.cc" "*.cpp" "*.cxx")
+file(GLOB base_headers "*.h" "*.hpp")
 
-add_library(base ${base_SRCS} ${base_HEADERS})
-# target_link_libraries(base)
+add_library(base ${base_srcs} ${base_headers})
+
+target_link_libraries(base
+    PUBLIC
+    ${Boost_LIBRARIES}
+)
+
 install(TARGETS base DESTINATION lib)
-install(FILES ${base_HEADERS} DESTINATION include/base)
+install(FILES ${base_headers} DESTINATION include/base)
 
 add_subdirectory(test)

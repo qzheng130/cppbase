@@ -3,6 +3,7 @@ add_executable(test
     forward_list.cc
     list.cc
 )
+
 target_link_libraries(test
     GTest::gtest
     GTest::gtest_main
